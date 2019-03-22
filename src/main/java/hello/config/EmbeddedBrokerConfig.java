@@ -1,4 +1,4 @@
-package hello;
+package hello.config;
 
 import org.apache.activemq.broker.BrokerService;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
@@ -30,7 +30,7 @@ public class EmbeddedBrokerConfig {
 
 
     @Bean
-    public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory,
+    public JmsTemplate jmsTopicTemplate(ConnectionFactory connectionFactory,
                                    MessageConverter jacksonJmsMessageConverter) {
         JmsTemplate jmsTemplate =
                 new JmsTemplate(connectionFactory);
@@ -41,13 +41,36 @@ public class EmbeddedBrokerConfig {
     }
 
     @Bean
-    public JmsListenerContainerFactory<?> myFactory(
+    public JmsTemplate jmsQueueTemplate(ConnectionFactory connectionFactory,
+                                        MessageConverter jacksonJmsMessageConverter) {
+        JmsTemplate jmsTemplate =
+                new JmsTemplate(connectionFactory);
+        jmsTemplate.setPubSubDomain(false);
+        jmsTemplate.setMessageConverter(jacksonJmsMessageConverter);
+
+        return jmsTemplate;
+    }
+
+    @Bean
+    public JmsListenerContainerFactory<?> topicFactory(
                                                     ConnectionFactory connectionFactory,
                                                     DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
         // This provides all boot's default to this factory, including the message converter
         configurer.configure(factory, connectionFactory);
         factory.setPubSubDomain(true);
+        // You could still override some of Boot's default if necessary.
+        return factory;
+    }
+
+    @Bean
+    public JmsListenerContainerFactory<?> queueFactory(
+            ConnectionFactory connectionFactory,
+            DefaultJmsListenerContainerFactoryConfigurer configurer) {
+        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        // This provides all boot's default to this factory, including the message converter
+        configurer.configure(factory, connectionFactory);
+        factory.setPubSubDomain(false);
         // You could still override some of Boot's default if necessary.
         return factory;
     }

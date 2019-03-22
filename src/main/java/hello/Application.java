@@ -1,27 +1,32 @@
 
 package hello;
 
+import hello.dto.AccountMsg;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.jms.core.JmsTemplate;
+
+import java.util.List;
+import java.util.StringJoiner;
 
 @SpringBootApplication
 public class Application {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         // Launch the application
         ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
 
-        JmsTemplate jmsTemplate = context.getBean(JmsTemplate.class);
+        AccountMsgExchange accountMsgExchange = context.getBean(AccountMsgExchange.class);
 
-        // Send a message with a POJO - the template reuse the message converter
-        System.out.println("Sending email messages to 'mailbox' topic");
-        for (int i = 0; i < 10; i++){
-            String msg = "Hello-"+i;
-            jmsTemplate.convertAndSend("mailbox", new Email("info@example.com", msg));
-            System.out.println("Msg sent: "+msg);
-        }
+        List<AccountMsg> accountMsgs =  accountMsgExchange.msgOpportunity("test-account", "test-context");
+
+        System.out.println("AccountMsgs : " + toString(accountMsgs));
+    }
+
+    private static String toString(List<AccountMsg> msgs){
+        StringJoiner str = new StringJoiner(" ; ");
+        msgs.forEach(msg -> str.add(msg.toString()));
+        return msgs.toString();
     }
 
 }
