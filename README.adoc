@@ -1,4 +1,4 @@
 
 Spring Boot Example of JMS embedded broker with topic
 
-Originally cloned from include:: https://github.com/spring-guides/gs-messaging-jms []
+Originally cloned from https://github.com/spring-guides/gs-messaging-jms
